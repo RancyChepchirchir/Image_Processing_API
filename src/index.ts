@@ -1,38 +1,21 @@
-//this is the Express server entry point
-
-//import Express framework
-import express from 'express';
-
-//import the routes object
+import express, { Response } from 'express';
+import fs from 'fs';
+import path from 'path';
 import routes from './routes/index';
 
-//import the logger middleware
-import logger from './utilities/logger';
-
-// Path module
-import path from 'path';
-
-//create the application object
 const app = express();
-
-//set a port
 const port = 3000;
 
-//provide a front-end page that displays a thumbnail directory
-app.get(
-  '/',
-  logger,
-  async (req: express.Request, res: express.Response): Promise<void> => {
-    res.sendFile(path.join(__dirname, '../public/index.html'));
-  }
-);
+app.use('/api', routes);
 
-//add an API entry point, apply the router and logger as middleware
-app.use('/image', logger, routes);
-
-//listen to port and output message to console
-app.listen(port, () => {
-  console.log('Server started at localhost:' + port);
+app.get('/', (_, res) => {
+    res.status(200).send('Server is working!');
 });
+
+if (!fs.existsSync(path.resolve(__dirname, '../assets/thumb'))) {
+    fs.mkdirSync(path.resolve(__dirname, '../assets/thumb'));
+}
+
+app.listen(port, () => console.log(`Running on port ${port}`));
 
 export default app;
